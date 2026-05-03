@@ -3,10 +3,41 @@ import { motion } from 'framer-motion'
 
 const phoneDisplay = '+7 707 218 60 14'
 const phoneHref = 'tel:+77072186014'
-const whatsappHref =
-  'https://wa.me/77072186014?text=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%2C%20%D0%B7%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5.%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B8%D1%82%D1%8C%20IPTV%20%D0%BD%D0%B0%20%D1%82%D0%B5%D0%BB%D0%B5%D0%B2%D0%B8%D0%B7%D0%BE%D1%80%D0%B5.'
 
-const makeWhatsappHref = (text) => `https://wa.me/77072186014?text=${encodeURIComponent(text)}`
+const getAttribution = () => {
+  if (typeof window === 'undefined') return ''
+  const params = new URLSearchParams(window.location.search)
+  const parts = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+    .map((key) => [key, params.get(key)])
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${key}: ${value}`)
+
+  return parts.length ? `\n\nИсточник заявки:\n${parts.join('\n')}` : ''
+}
+
+const getSourceGreeting = () => {
+  if (typeof window === 'undefined') return 'Хочу настроить IPTV на телевизоре.'
+  const source = new URLSearchParams(window.location.search).get('utm_source')?.toLowerCase() || ''
+  if (source.includes('google')) return 'Пришел с Google. Хочу настроить IPTV на Smart TV.'
+  if (source.includes('yandex') || source.includes('яндекс')) {
+    return 'Пришел с Яндекс рекламы. Хочу настроить IPTV на телевизоре.'
+  }
+  return 'Хочу настроить IPTV на телевизоре.'
+}
+
+const makeWhatsappHref = (text) =>
+  `https://wa.me/77072186014?text=${encodeURIComponent(`${text}${getAttribution()}`)}`
+
+const defaultWhatsappHref = () =>
+  makeWhatsappHref(`Александр, здравствуйте. ${getSourceGreeting()}`)
+
+const trackGoal = (goal) => {
+  if (typeof window === 'undefined') return
+  window.dataLayer?.push?.({ event: goal })
+  if (typeof window.ym === 'function' && window.SITE_ANALYTICS?.yandexMetrikaId) {
+    window.ym(window.SITE_ANALYTICS.yandexMetrikaId, 'reachGoal', goal)
+  }
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -47,6 +78,41 @@ const ArrowIcon = () => (
     <path d="m13 6 6 6-6 6" />
   </svg>
 )
+
+const CopyIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="icon">
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+)
+
+const PhoneActions = ({ compact = false }) => {
+  const [copied, setCopied] = useState(false)
+
+  const copyPhone = async () => {
+    try {
+      await navigator.clipboard.writeText('87072186014')
+      setCopied(true)
+      trackGoal('copy_phone')
+      window.setTimeout(() => setCopied(false), 1700)
+    } catch {
+      setCopied(false)
+    }
+  }
+
+  return (
+    <div className={compact ? 'phone-actions phone-actions-compact' : 'phone-actions'}>
+      <a href={phoneHref} onClick={() => trackGoal('click_phone')}>
+        <PhoneIcon />
+        <span>{compact ? 'Звонок' : phoneDisplay}</span>
+      </a>
+      <button type="button" onClick={copyPhone} aria-label="Скопировать номер телефона">
+        <CopyIcon />
+        <span>{copied ? 'Скопировано' : 'Скопировать'}</span>
+      </button>
+    </div>
+  )
+}
 
 const TvHero = () => (
   <motion.div
@@ -110,7 +176,7 @@ const Nav = () => (
       <a href="#devices">Устройства</a>
       <a href="#faq">Вопросы</a>
     </nav>
-    <a className="nav-call" href={phoneHref}>
+    <a className="nav-call" href={phoneHref} onClick={() => trackGoal('click_phone')}>
       <PhoneIcon />
       <span>{phoneDisplay}</span>
     </a>
@@ -124,9 +190,8 @@ const Hero = () => (
       <div className="hero-copy">
         <p className="eyebrow">Астана и Казахстан. Удаленная настройка</p>
         <h1>
-          IPTV на
+          Все каналы на вашем
           <span>Smart TV</span>
-          <span>за 15–30 минут</span>
         </h1>
         <p className="lead">
           Привет, я Александр. Более 10 лет занимаюсь настройкой ТВ и помогу настроить ваш
@@ -134,14 +199,11 @@ const Hero = () => (
           медиатека. Работаю с Samsung, LG, Sony, Android TV и TV Box. Оплата после установки.
         </p>
         <div className="hero-actions">
-          <a className="btn btn-primary" href={whatsappHref}>
+          <a className="btn btn-primary" href={defaultWhatsappHref()} onClick={() => trackGoal('click_whatsapp')}>
             <MessageIcon />
             Написать в WhatsApp
           </a>
-          <a className="btn btn-glass" href={phoneHref}>
-            <PhoneIcon />
-            Позвонить
-          </a>
+          <PhoneActions compact />
         </div>
         <div className="quick-trust">
           <span>от 5000 тг</span>
@@ -152,6 +214,35 @@ const Hero = () => (
       <TvHero />
     </div>
   </section>
+)
+
+const Profile = () => (
+  <Section id="profile" className="profile-section">
+    <motion.div
+      className="profile-card"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.25 }}
+      variants={fadeUp}
+    >
+      <div className="profile-photo-wrap">
+        <img src="./assets/alexander.webp" alt="Александр, специалист по настройке IPTV" />
+      </div>
+      <div className="profile-copy">
+        <p className="eyebrow">Кто настраивает</p>
+        <h2>Александр, 10+ лет с ТВ и приставками</h2>
+        <p>
+          Помогаю подключить приложение, выбрать удобный способ просмотра и проверить работу каналов
+          сразу после настройки. Общаюсь простым языком и веду по шагам.
+        </p>
+        <div className="profile-facts">
+          <span>Samsung, LG, Sony</span>
+          <span>Android TV / TV Box</span>
+          <span>Удаленно по Казахстану</span>
+        </div>
+      </div>
+    </motion.div>
+  </Section>
 )
 
 const sellingPoints = [
@@ -222,7 +313,7 @@ const Offer = () => (
           Каналы СНГ и зарубежные, спорт, футбол, мультфильмы, фильмы и медиатека. Настройка
           подбирается под вашу модель телевизора и скорость интернета.
         </p>
-        <a className="text-link" href={whatsappHref}>
+        <a className="text-link" href={defaultWhatsappHref()} onClick={() => trackGoal('click_whatsapp')}>
           Узнать, подойдет ли мой телевизор
           <ArrowIcon />
         </a>
@@ -244,6 +335,77 @@ const Offer = () => (
         ))}
       </div>
     </div>
+  </Section>
+)
+
+const channelCategories = [
+  ['Спорт', 'Футбол, UFC, хоккей, прямые трансляции'],
+  ['Кино', 'Фильмы, сериалы, премьеры и медиатека'],
+  ['Детские', 'Мультфильмы и семейные каналы'],
+  ['Познавательные', 'Discovery, история, путешествия'],
+  ['Музыка', 'Клипы, концерты, тематические каналы'],
+  ['Весь мир', 'СНГ, Европа, Азия и другие страны'],
+]
+
+const ChannelCategories = () => (
+  <Section id="channels" className="channels-section">
+    <motion.div
+      className="section-heading"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.35 }}
+      variants={fadeUp}
+    >
+      <p className="eyebrow">Что смотреть</p>
+      <h2>Выбирайте каналы под свои интересы</h2>
+      <p>Горизонтальная лента показывает основные категории, которые чаще всего спрашивают.</p>
+    </motion.div>
+    <div className="channel-scroll" aria-label="Категории каналов">
+      {channelCategories.map(([title, text]) => (
+        <article className="channel-card" key={title}>
+          <strong>{title}</strong>
+          <span>{text}</span>
+        </article>
+      ))}
+    </div>
+  </Section>
+)
+
+const Price = () => (
+  <Section id="price" className="price-section">
+    <motion.div
+      className="price-panel"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.25 }}
+      variants={fadeUp}
+    >
+      <div>
+        <p className="eyebrow">Сколько стоит</p>
+        <h2>Настройка от 5000 тг</h2>
+        <p>
+          Итоговая цена зависит от модели телевизора, способа установки приложения, количества
+          устройств и того, нужна ли приставка для обычного ТВ.
+        </p>
+      </div>
+      <div className="price-list">
+        <div>
+          <span>от 5000 тг</span>
+          <strong>Smart TV / Android TV</strong>
+          <p>Если приложение можно установить сразу и интернет стабильный.</p>
+        </div>
+        <div>
+          <span>индивидуально</span>
+          <strong>TV Box или сложная модель</strong>
+          <p>Если нужна дополнительная проверка, подбор приложения или помощь с приставкой.</p>
+        </div>
+        <div>
+          <span>0 тг вперед</span>
+          <strong>Оплата после результата</strong>
+          <p>Сначала проверяем запуск, каналы и качество изображения.</p>
+        </div>
+      </div>
+    </motion.div>
   </Section>
 )
 
@@ -321,7 +483,14 @@ const Quiz = () => {
                 Ответьте на 4 коротких вопроса. В WhatsApp Александру уйдет уже готовая заявка с
                 моделью, городом и удобным временем.
               </p>
-              <button className="btn btn-primary quiz-start-button" type="button" onClick={() => setStarted(true)}>
+              <button
+                className="btn btn-primary quiz-start-button"
+                type="button"
+                onClick={() => {
+                  setStarted(true)
+                  trackGoal('start_quiz')
+                }}
+              >
                 Начать квиз
                 <ArrowIcon />
               </button>
@@ -413,7 +582,11 @@ const Quiz = () => {
                 <strong>Готовое сообщение</strong>
                 <p>Перед отправкой его можно будет поправить прямо в WhatsApp.</p>
               </div>
-              <a className="btn btn-primary" href={makeWhatsappHref(message)}>
+              <a
+                className="btn btn-primary"
+                href={makeWhatsappHref(message)}
+                onClick={() => trackGoal('submit_quiz_whatsapp')}
+              >
                 <MessageIcon />
                 Отправить квиз в WhatsApp
               </a>
@@ -473,6 +646,45 @@ const steps = [
   ['Оплачиваете', 'Оплата после результата, когда все открывается и работает.'],
 ]
 
+const connectSteps = [
+  ['Вы оставляете заявку', 'Пишите в WhatsApp или проходите квиз, чтобы я сразу видел модель ТВ.'],
+  ['Я присылаю инструкцию', 'Подсказываю ссылку, код или приложение и веду вас по шагам.'],
+  ['Вы смотрите каналы', 'Проверяем спорт, кино, детские каналы, архив и качество картинки.'],
+]
+
+const HowConnect = () => (
+  <Section id="connect" className="connect-section">
+    <motion.div
+      className="section-heading"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.35 }}
+      variants={fadeUp}
+    >
+      <p className="eyebrow">Как подключить</p>
+      <h2>Три шага без сложных настроек</h2>
+      <p>Главная задача — не заставлять вас разбираться в меню телевизора в одиночку.</p>
+    </motion.div>
+    <div className="connect-grid">
+      {connectSteps.map(([title, text], index) => (
+        <motion.article
+          className="connect-card"
+          key={title}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={fadeUp}
+          custom={index}
+        >
+          <span>{index + 1}</span>
+          <h3>{title}</h3>
+          <p>{text}</p>
+        </motion.article>
+      ))}
+    </div>
+  </Section>
+)
+
 const Process = () => (
   <Section id="process" className="process">
     <motion.div
@@ -506,6 +718,76 @@ const Process = () => (
     </div>
   </Section>
 )
+
+const testimonials = [
+  {
+    name: 'Айгуль',
+    device: 'LG Smart TV',
+    messages: ['Здравствуйте, всё показывает?', 'Да, спасибо! Футбол включился без тормозов, муж доволен.'],
+  },
+  {
+    name: 'Данияр',
+    device: 'Samsung',
+    messages: ['Проверили кино и детские каналы.', 'Качество отличное, дети уже мультики смотрят. Спасибо за настройку.'],
+  },
+  {
+    name: 'Марина',
+    device: 'Android TV Box',
+    messages: ['Архив передач открылся?', 'Да, перемотка работает. Очень удобно, что помогли по телефону.'],
+  },
+  {
+    name: 'Ерлан',
+    device: 'Sony TV',
+    messages: ['Если что-то пропадет, напишите.', 'Хорошо. Сейчас всё летает, каналы переключаются быстро.'],
+  },
+  {
+    name: 'Сауле',
+    device: 'Mi Box',
+    messages: ['Спорт, кино, детские проверили.', 'Спасибо, всё понятно объяснили. Оплатила после проверки, как и обещали.'],
+  },
+]
+
+const Testimonials = () => {
+  const items = [...testimonials, ...testimonials]
+
+  return (
+    <Section id="reviews" className="reviews-section">
+      <motion.div
+        className="section-heading"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.35 }}
+        variants={fadeUp}
+      >
+        <p className="eyebrow">Социальное доказательство</p>
+        <h2>Так обычно выглядят сообщения после настройки</h2>
+        <p>
+          Ниже — демонстрационные примеры переписок в WhatsApp-стиле, чтобы показать типичные
+          вопросы и результат после подключения.
+        </p>
+      </motion.div>
+      <div className="reviews-marquee" aria-label="Примеры отзывов">
+        <div className="reviews-track">
+          {items.map((item, index) => (
+            <article className="chat-card" key={`${item.name}-${index}`}>
+              <div className="chat-head">
+                <div>
+                  <strong>{item.name}</strong>
+                  <span>{item.device}</span>
+                </div>
+                <em>WhatsApp</em>
+              </div>
+              <div className="chat-body">
+                <p className="bubble bubble-in">{item.messages[0]}</p>
+                <p className="bubble bubble-out">{item.messages[1]}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
 
 const faq = [
   [
@@ -573,14 +855,11 @@ const CTA = () => (
         экран с настройками или напишите бренд.
       </p>
       <div className="cta-actions">
-        <a className="btn btn-primary" href={whatsappHref}>
+        <a className="btn btn-primary" href={defaultWhatsappHref()} onClick={() => trackGoal('click_whatsapp')}>
           <MessageIcon />
           WhatsApp
         </a>
-        <a className="btn btn-glass" href={phoneHref}>
-          <PhoneIcon />
-          {phoneDisplay}
-        </a>
+        <PhoneActions />
       </div>
     </motion.div>
   </Section>
@@ -588,15 +867,28 @@ const CTA = () => (
 
 const StickyMobile = () => (
   <div className="sticky-mobile" aria-label="Быстрые контакты">
-    <a href={phoneHref}>
+    <a href={phoneHref} onClick={() => trackGoal('click_phone')}>
       <PhoneIcon />
       Звонок
     </a>
-    <a href={whatsappHref}>
+    <a href={defaultWhatsappHref()} onClick={() => trackGoal('click_whatsapp')}>
       <MessageIcon />
       WhatsApp
     </a>
   </div>
+)
+
+const LegalNote = () => (
+  <Section id="legal" className="legal-section">
+    <div className="legal-note">
+      <strong>Важно про контент</strong>
+      <p>
+        Услуга включает техническую настройку приложений на Smart TV, Android TV и TV Box. Доступ к
+        каналам и медиаконтенту должен использоваться через легальные сервисы, подписки и источники,
+        доступные пользователю в его регионе.
+      </p>
+    </div>
+  </Section>
 )
 
 const Footer = () => (
@@ -615,12 +907,18 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
+        <Profile />
         <Benefits />
         <Offer />
+        <ChannelCategories />
+        <Price />
         <Quiz />
         <Devices />
+        <HowConnect />
         <Process />
+        <Testimonials />
         <FAQ />
+        <LegalNote />
         <CTA />
       </main>
       <Footer />

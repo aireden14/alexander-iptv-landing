@@ -259,6 +259,38 @@ h3 {
   margin-top: 26px;
 }
 
+.phone-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phone-actions a,
+.phone-actions button {
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 15px 18px;
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 780;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+.phone-actions button {
+  color: #087f9f;
+}
+
 .btn {
   display: inline-flex;
   min-height: 54px;
@@ -309,6 +341,57 @@ h3 {
   font-weight: 720;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+}
+
+.profile-card {
+  display: grid;
+  gap: 20px;
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.26)),
+    linear-gradient(120deg, rgba(5, 168, 215, 0.12), rgba(55, 200, 113, 0.12));
+  box-shadow: 0 22px 52px rgba(31, 41, 55, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+.profile-photo-wrap {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border-radius: 26px;
+  background: #d8eef1;
+}
+
+.profile-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.profile-copy p:not(.eyebrow) {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.profile-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.profile-facts span {
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(17, 24, 39, 0.08);
+  color: #273142;
+  font-size: 13px;
+  font-weight: 780;
 }
 
 .tv-scene {
@@ -576,6 +659,103 @@ h3 {
   color: var(--muted);
   font-size: 14px;
   font-weight: 680;
+}
+
+.channel-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin-inline: -18px;
+  padding: 2px 18px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.channel-card {
+  min-width: 210px;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  scroll-snap-align: start;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 18px;
+  background:
+    linear-gradient(145deg, rgba(17, 24, 39, 0.9), rgba(39, 49, 66, 0.86)),
+    linear-gradient(120deg, rgba(5, 168, 215, 0.24), rgba(255, 111, 97, 0.18));
+  color: #fff;
+  box-shadow: 0 18px 42px rgba(31, 41, 55, 0.12);
+}
+
+.channel-card strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.channel-card span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.price-panel,
+.connect-card,
+.legal-note {
+  border: 1px solid var(--line);
+  background: var(--glass);
+  box-shadow: 0 18px 44px rgba(31, 41, 55, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+.price-panel {
+  display: grid;
+  gap: 22px;
+  border-radius: 32px;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.26)),
+    linear-gradient(120deg, rgba(245, 200, 76, 0.16), rgba(5, 168, 215, 0.12));
+}
+
+.price-panel p {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.price-list {
+  display: grid;
+  gap: 12px;
+}
+
+.price-list div {
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.price-list span {
+  display: inline-flex;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #111827;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 840;
+}
+
+.price-list strong {
+  display: block;
+  font-size: 18px;
+}
+
+.price-list p {
+  margin: 8px 0 0;
+  font-size: 14px;
 }
 
 .quiz-panel {
@@ -867,6 +1047,35 @@ h3 {
   color: #168f53;
 }
 
+.connect-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.connect-card {
+  min-height: 190px;
+  border-radius: 26px;
+  padding: 22px;
+}
+
+.connect-card > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  margin-bottom: 18px;
+  border-radius: 17px;
+  background: linear-gradient(135deg, #111827, #05a8d7);
+  color: #fff;
+  font-weight: 860;
+}
+
+.connect-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .timeline {
   display: grid;
   gap: 12px;
@@ -944,6 +1153,97 @@ h3 {
   font-size: 15px;
 }
 
+.reviews-marquee {
+  overflow: hidden;
+  margin-inline: -18px;
+  padding: 4px 0 12px;
+}
+
+.reviews-track {
+  display: flex;
+  width: max-content;
+  gap: 14px;
+  padding-left: 18px;
+  animation: reviewsFlow 32s linear infinite;
+}
+
+.reviews-marquee:hover .reviews-track {
+  animation-play-state: paused;
+}
+
+.chat-card {
+  width: 292px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 26px;
+  background: #e8f5ec;
+  box-shadow: 0 18px 42px rgba(31, 41, 55, 0.12);
+}
+
+.chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 15px;
+  background: #075e54;
+  color: #fff;
+}
+
+.chat-head div {
+  display: grid;
+  gap: 2px;
+}
+
+.chat-head span,
+.chat-head em {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.chat-body {
+  display: grid;
+  gap: 10px;
+  min-height: 190px;
+  padding: 16px;
+  background:
+    linear-gradient(rgba(232, 245, 236, 0.86), rgba(232, 245, 236, 0.86)),
+    repeating-linear-gradient(45deg, rgba(7, 94, 84, 0.08) 0 2px, transparent 2px 18px);
+}
+
+.bubble {
+  max-width: 86%;
+  margin: 0;
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.bubble-in {
+  justify-self: start;
+  border-top-left-radius: 5px;
+  background: #fff;
+  color: #1f2937;
+}
+
+.bubble-out {
+  justify-self: end;
+  border-top-right-radius: 5px;
+  background: #d9fdd3;
+  color: #1f2937;
+}
+
+@keyframes reviewsFlow {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .cta-section {
   padding-bottom: 32px;
 }
@@ -965,6 +1265,24 @@ h3 {
 .cta-panel .btn-glass {
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
+}
+
+.legal-note {
+  border-radius: 24px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.legal-note strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.legal-note p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .footer {
@@ -1041,6 +1359,10 @@ h3 {
     align-items: center;
   }
 
+  .phone-actions {
+    flex-direction: row;
+  }
+
   .btn {
     min-width: 190px;
   }
@@ -1093,10 +1415,26 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .profile-card {
+    grid-template-columns: 320px minmax(0, 1fr);
+    align-items: center;
+    padding: 28px;
+  }
+
   .offer-panel {
     grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
     align-items: center;
     padding: 38px;
+  }
+
+  .price-panel {
+    grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1fr);
+    align-items: center;
+    padding: 38px;
+  }
+
+  .connect-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .quiz-panel {

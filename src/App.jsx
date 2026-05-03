@@ -270,6 +270,7 @@ const quizQuestions = [
 ]
 
 const Quiz = () => {
+  const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState({
     device: '',
     brand: '',
@@ -304,74 +305,120 @@ const Quiz = () => {
   return (
     <Section id="quiz" className="quiz-section">
       <motion.div
-        className="quiz-panel"
+        className={started ? 'quiz-panel quiz-panel-active' : 'quiz-panel'}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
         variants={fadeUp}
       >
-        <div className="quiz-head">
-          <div>
-            <p className="eyebrow">Быстрый квиз</p>
-            <h2>Узнайте, подойдет ли ваше устройство</h2>
-            <p>
-              Ответы сразу попадут в WhatsApp, чтобы Александр понял задачу без лишних вопросов.
-            </p>
-          </div>
-          <div className="quiz-progress" aria-label={`Заполнено ${progress}%`}>
-            <span style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-
-        <div className="quiz-grid">
-          {quizQuestions.map((question) => (
-            <div className="quiz-card" key={question.key}>
-              <h3>{question.title}</h3>
-              <div className="quiz-options">
-                {question.options.map((option) => (
-                  <button
-                    className={answers[question.key] === option ? 'quiz-option active' : 'quiz-option'}
-                    key={option}
-                    type="button"
-                    onClick={() => setAnswer(question.key, option)}
-                  >
-                    {option}
-                  </button>
-                ))}
+        {!started ? (
+          <div className="quiz-start">
+            <div className="quiz-start-copy">
+              <p className="eyebrow">Квиз перед заявкой</p>
+              <h2>Проверьте ваш телевизор за 30 секунд</h2>
+              <p>
+                Ответьте на 4 коротких вопроса. В WhatsApp Александру уйдет уже готовая заявка с
+                моделью, городом и удобным временем.
+              </p>
+              <button className="btn btn-primary quiz-start-button" type="button" onClick={() => setStarted(true)}>
+                Начать квиз
+                <ArrowIcon />
+              </button>
+            </div>
+            <div className="quiz-preview" aria-hidden="true">
+              <div className="quiz-preview-card active">
+                <span>1</span>
+                <strong>Устройство</strong>
+                <em>Smart TV / TV Box</em>
+              </div>
+              <div className="quiz-preview-card">
+                <span>2</span>
+                <strong>Марка</strong>
+                <em>Samsung, LG, Sony...</em>
+              </div>
+              <div className="quiz-preview-card">
+                <span>3</span>
+                <strong>Интернет</strong>
+                <em>Wi-Fi или кабель</em>
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="quiz-fields">
-          <label>
-            <span>Модель, если знаете</span>
-            <input
-              value={answers.model}
-              onChange={(event) => setAnswer('model', event.target.value)}
-              placeholder="Например: Samsung TU7000"
-            />
-          </label>
-          <label>
-            <span>Город</span>
-            <input
-              value={answers.city}
-              onChange={(event) => setAnswer('city', event.target.value)}
-              placeholder="Например: Астана"
-            />
-          </label>
-        </div>
-
-        <div className="quiz-result">
-          <div>
-            <strong>Готовое сообщение</strong>
-            <p>Перед отправкой его можно будет поправить прямо в WhatsApp.</p>
           </div>
-          <a className="btn btn-primary" href={makeWhatsappHref(message)}>
-            <MessageIcon />
-            Отправить квиз в WhatsApp
-          </a>
-        </div>
+        ) : (
+          <>
+            <div className="quiz-head">
+              <div>
+                <p className="eyebrow">Быстрый квиз</p>
+                <h2>Узнайте, подойдет ли ваше устройство</h2>
+                <p>
+                  Нажмите подходящие варианты. В конце откроется WhatsApp с готовым сообщением для
+                  Александра.
+                </p>
+              </div>
+              <div className="quiz-progress-wrap">
+                <span>{completedCount} из {quizQuestions.length}</span>
+                <div className="quiz-progress" aria-label={`Заполнено ${progress}%`}>
+                  <span style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            </div>
+
+            <div className="quiz-grid">
+              {quizQuestions.map((question, index) => (
+                <div className="quiz-card" key={question.key}>
+                  <div className="quiz-question-title">
+                    <span>{index + 1}</span>
+                    <h3>{question.title}</h3>
+                  </div>
+                  <div className="quiz-options">
+                    {question.options.map((option) => (
+                      <button
+                        className={
+                          answers[question.key] === option ? 'quiz-option active' : 'quiz-option'
+                        }
+                        key={option}
+                        type="button"
+                        onClick={() => setAnswer(question.key, option)}
+                      >
+                        <CheckIcon />
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="quiz-fields">
+              <label>
+                <span>Модель, если знаете</span>
+                <input
+                  value={answers.model}
+                  onChange={(event) => setAnswer('model', event.target.value)}
+                  placeholder="Например: Samsung TU7000"
+                />
+              </label>
+              <label>
+                <span>Город</span>
+                <input
+                  value={answers.city}
+                  onChange={(event) => setAnswer('city', event.target.value)}
+                  placeholder="Например: Астана"
+                />
+              </label>
+            </div>
+
+            <div className="quiz-result">
+              <div>
+                <strong>Готовое сообщение</strong>
+                <p>Перед отправкой его можно будет поправить прямо в WhatsApp.</p>
+              </div>
+              <a className="btn btn-primary" href={makeWhatsappHref(message)}>
+                <MessageIcon />
+                Отправить квиз в WhatsApp
+              </a>
+            </div>
+          </>
+        )}
       </motion.div>
     </Section>
   )
